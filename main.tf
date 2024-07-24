@@ -1,6 +1,13 @@
 provider "aws" {
   region = "eu-west-3" # Paris
 }
+
+locals {
+  azs               = slice(data.aws_availability_zones.available.names, 0, 3)
+  private_subnets   = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 8, k)]
+  public_subnets    = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 8, k + 4)]
+  database_subnets  = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 8, k + 8)]
+}
 ################################################################################
 # VPC Module
 # https://github.com/terraform-aws-modules/terraform-aws-vpc
@@ -45,14 +52,6 @@ module "vpc" {
   create_flow_log_cloudwatch_log_group = true
   create_flow_log_cloudwatch_iam_role  = true
   flow_log_max_aggregation_interval    = 60
-
-  tags = merge(
-    local.tags,
-    {
-
-    },
-  )
-
 }
 # -------------------------
 # Creación de la vpc
