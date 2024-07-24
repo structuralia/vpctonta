@@ -1,6 +1,16 @@
 provider "aws" {
   region = "eu-west-3" # Paris
 }
+# ------------------------------------------------------------
+# Region actual
+# ------------------------------------------------------------
+data "aws_region" "current" {}
+
+# ------------------------------------------------------------
+# AZs disponibles
+# ------------------------------------------------------------
+data "aws_availability_zones" "available" {}
+
 
 locals {
   azs               = slice(data.aws_availability_zones.available.names, 0, 3)
